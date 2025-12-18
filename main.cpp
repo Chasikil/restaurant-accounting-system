@@ -1,3 +1,6 @@
+// Laboratory work #2: UML-based class implementation
+
+
 #include <iostream>
 #include "Client.hpp"
 #include "Order.hpp"

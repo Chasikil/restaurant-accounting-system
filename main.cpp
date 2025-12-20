@@ -1,12 +1,16 @@
 // Laboratory work #2: UML-based class implementation
-
+// Extended with smart pointers, operators, inheritance, exceptions, etc.
 
 #include <iostream>
+#include <memory>
+#include <vector>
 #include "Client.hpp"
 #include "Order.hpp"
+#include "Employee.hpp"
+#include "VIPClient.hpp"
 
 int main() {
-    std::cout << "=== Demonstration of object creation and usage in C++ ===\n\n";
+    std::cout << "=== Demonstration of advanced C++ features ===\n\n";
 
     // 1. Статическое создание объекта класса
     std::cout << "1. Static object creation:\n";
@@ -17,87 +21,155 @@ int main() {
     client1.showInfo();
     std::cout << std::endl;
 
-    // 2. Динамическое создание объекта с new и delete
-    std::cout << "2. Dynamic object creation with new and delete:\n";
-    std::cout << "------------------------------------------------\n";
-    Order* order1 = new Order(101, "2024-01-15 14:30:00");
-    order1->addItem(250.0);
-    order1->addItem(180.0);
-    order1->showInfo();
-    delete order1; // Освобождение памяти
+    // 2. Умные указатели: std::unique_ptr
+    std::cout << "2. Smart pointers (std::unique_ptr):\n";
+    std::cout << "------------------------------------\n";
+    {
+        std::unique_ptr<Order> order1 = std::make_unique<Order>(101, "2024-01-15 14:30:00");
+        order1->addItem(250.0);
+        order1->addItem(180.0);
+        order1->showInfo();
+        // Автоматическое освобождение памяти при выходе из блока
+    }
     std::cout << std::endl;
 
-    // 3. Работа с объектом по ссылке
-    std::cout << "3. Working with object by reference:\n";
-    std::cout << "-------------------------------------\n";
+    // 3. Умные указатели: std::shared_ptr
+    std::cout << "3. Smart pointers (std::shared_ptr):\n";
+    std::cout << "------------------------------------\n";
+    {
+        std::shared_ptr<Order> order2 = std::make_shared<Order>(102, "2024-01-15 15:00:00");
+        order2->addItem(500.0);
+        {
+            std::shared_ptr<Order> order2Copy = order2; // Разделяемое владение
+            order2Copy->addItem(300.0);
+            std::cout << "Reference count: " << order2Copy.use_count() << std::endl;
+        }
+        order2->showInfo();
+        std::cout << "Reference count: " << order2.use_count() << std::endl;
+    }
+    std::cout << std::endl;
+
+    // 4. Конструктор копирования
+    std::cout << "4. Copy constructor:\n";
+    std::cout << "---------------------\n";
     Client client2("Maria Sidorova", "+7-999-234-56-78");
-    Client& clientRef = client2; // Создание ссылки на объект
-    clientRef.addVisit();
-    clientRef.updateTotalSpent(3200.0);
-    clientRef.showInfo();
-    std::cout << "Note: client2 and clientRef refer to the same object.\n";
+    client2.addVisit();
+    Client client3(client2); // Использование конструктора копирования
+    std::cout << "Original client:\n";
+    client2.showInfo();
+    std::cout << "\nCopied client:\n";
+    client3.showInfo();
+    std::cout << "Total clients: " << Client::getTotalClients() << std::endl;
     std::cout << std::endl;
 
-    // 4. Работа с объектом по указателю
-    std::cout << "4. Working with object by pointer:\n";
-    std::cout << "-----------------------------------\n";
-    Order order2(102, "2024-01-15 15:00:00");
-    Order* orderPtr = &order2; // Указатель на статический объект
-    orderPtr->addItem(500.0);
-    orderPtr->addItem(300.0);
-    orderPtr->showInfo();
+    // 5. Перегрузка операторов
+    std::cout << "5. Operator overloading:\n";
+    std::cout << "-------------------------\n";
+    Client client4("Anna Ivanova", "+7-999-345-67-89");
+    client4 += 1500.0; // Оператор +=
+    Client client5 = client4 + 500.0; // Оператор +
+    std::cout << "Client4 after += 1500: " << client4 << std::endl;
+    std::cout << "Client5 (Client4 + 500): " << client5 << std::endl;
+    std::cout << "client4 == client5: " << (client4 == client5 ? "true" : "false") << std::endl;
+    
+    Order order3(201, "2024-01-15 16:00:00");
+    Order order4(202, "2024-01-15 16:30:00");
+    order3 += 100.0;
+    order4 += 200.0;
+    std::cout << "Order3: " << order3 << std::endl;
+    std::cout << "Order4: " << order4 << std::endl;
+    std::cout << "order3 < order4: " << (order3 < order4 ? "true" : "false") << std::endl;
     std::cout << std::endl;
 
-    // 5. Динамический массив объектов класса
-    std::cout << "5. Dynamic array of objects:\n";
-    std::cout << "-----------------------------\n";
-    const int clientCount = 3;
-    Client* clients = new Client[clientCount] {
-        Client("Anna Ivanova", "+7-999-345-67-89"),
-        Client("Petr Kozlov", "+7-999-456-78-90"),
-        Client("Olga Volkova", "+7-999-567-89-01")
-    };
-
-    for (int i = 0; i < clientCount; ++i) {
-        clients[i].addVisit();
-        clients[i].updateTotalSpent((i + 1) * 1000.0);
-        clients[i].showInfo();
-        std::cout << std::endl;
-    }
-    delete[] clients; // Освобождение памяти массива
+    // 6. Работа со строками (конкатенация, поиск)
+    std::cout << "6. String operations (concatenation, search):\n";
+    std::cout << "----------------------------------------------\n";
+    Client client6("Petr Kozlov", "+7-999-456-78-90");
+    client6.updateTotalSpent(3000.0);
+    std::string fullInfo = client6.getFullInfo();
+    std::cout << "Full info (concatenated): " << fullInfo << std::endl;
+    std::cout << "Search 'Petr' in name: " << (client6.findInName("Petr") ? "found" : "not found") << std::endl;
+    std::cout << "Search 'Koz' in name: " << (client6.findInName("Koz") ? "found" : "not found") << std::endl;
+    
+    // Дружественная функция для конкатенации
+    std::string combined = concatenateClientInfo(client1, client6);
+    std::cout << "Combined info: " << combined << std::endl;
     std::cout << std::endl;
 
-    // 6. Массив указателей на динамические объекты класса
-    std::cout << "6. Array of pointers to dynamic objects:\n";
+    // 7. Статические поля и методы
+    std::cout << "7. Static fields and methods:\n";
+    std::cout << "------------------------------\n";
+    std::cout << "Total clients: " << Client::getTotalClients() << std::endl;
+    
+    Employee emp1(1, "John Doe", "Waiter", 15.0);
+    Employee emp2(2, "Jane Smith", "Chef", 25.0);
+    emp1.addHours(40.0);
+    emp2.addHours(35.0);
+    std::cout << "Total employees: " << Employee::getTotalEmployees() << std::endl;
+    std::cout << "Total hours worked: " << Employee::getTotalHoursWorked() << std::endl;
+    std::cout << "Average hours: " << Employee::getAverageHours() << std::endl;
+    std::cout << std::endl;
+
+    // 8. Наследование (вызов конструктора базового класса)
+    std::cout << "8. Inheritance (base class constructor call):\n";
+    std::cout << "----------------------------------------------\n";
+    VIPClient vip1("VIP User", "+7-999-999-99-99", "Platinum", 20.0);
+    vip1.addVisit();
+    vip1.updateTotalSpent(5000.0);
+    vip1.showInfo();
+    std::cout << std::endl;
+
+    // 9. Обработка исключений (try-catch-throw)
+    std::cout << "9. Exception handling (try-catch-throw):\n";
     std::cout << "-----------------------------------------\n";
-    const int orderCount = 3;
-    Order** orders = new Order*[orderCount]; // Массив указателей на Order
+    try {
+        Client client7("Test", "+7-999-000-00-00");
+        client7.updateTotalSpent(-100.0); // Попытка передать отрицательное значение
+        Order order5(-1, "2024-01-15 17:00:00"); // Попытка создать заказ с отрицательным ID
+    } catch (const std::exception& e) {
+        std::cout << "Caught exception: " << e.what() << std::endl;
+    }
+    
+    try {
+        Order order6(301, "2024-01-15 18:00:00");
+        order6.addItem(100.0);
+        order6.removeItem(150.0); // Попытка удалить больше, чем есть
+    } catch (const std::exception& e) {
+        std::cout << "Caught exception: " << e.what() << std::endl;
+    }
+    std::cout << std::endl;
 
-    // Создание динамических объектов
-    orders[0] = new Order(201, "2024-01-15 16:00:00");
-    orders[1] = new Order(202, "2024-01-15 16:30:00");
-    orders[2] = new Order(203, "2024-01-15 17:00:00");
-
-    // Работа с объектами через указатели
+    // 10. Массив умных указателей
+    std::cout << "10. Array of smart pointers:\n";
+    std::cout << "------------------------------\n";
+    std::vector<std::unique_ptr<Order>> orders;
+    orders.push_back(std::make_unique<Order>(401, "2024-01-15 19:00:00"));
+    orders.push_back(std::make_unique<Order>(402, "2024-01-15 19:30:00"));
+    orders.push_back(std::make_unique<Order>(403, "2024-01-15 20:00:00"));
+    
     orders[0]->addItem(100.0);
-    orders[0]->addItem(50.0);
-    
     orders[1]->addItem(200.0);
-    orders[1]->addItem(150.0);
-    
     orders[2]->addItem(300.0);
-
-    // Вывод информации
-    for (int i = 0; i < orderCount; ++i) {
-        orders[i]->showInfo();
+    
+    for (const auto& order : orders) {
+        order->showInfo();
         std::cout << std::endl;
     }
+    // Автоматическое освобождение памяти
+    std::cout << std::endl;
 
-    // Освобождение памяти
-    for (int i = 0; i < orderCount; ++i) {
-        delete orders[i]; // Удаление каждого объекта
-    }
-    delete[] orders; // Удаление массива указателей
+    // 11. Работа с объектом по ссылке и указателю
+    std::cout << "11. Working with references and pointers:\n";
+    std::cout << "------------------------------------------\n";
+    Client client8("Reference Test", "+7-999-111-11-11");
+    Client& clientRef = client8;
+    clientRef.addVisit();
+    std::cout << "Using reference: " << clientRef << std::endl;
+    
+    Order order7(501, "2024-01-15 21:00:00");
+    Order* orderPtr = &order7;
+    orderPtr->addItem(150.0);
+    std::cout << "Using pointer: " << *orderPtr << std::endl;
     std::cout << std::endl;
 
     std::cout << "=== Demonstration completed ===\n";

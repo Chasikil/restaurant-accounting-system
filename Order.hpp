@@ -5,17 +5,29 @@
 #include <iostream>
 #include <stdexcept>
 
-class Order {
+// Интерфейс для клонирования
+class Cloneable {
+public:
+    virtual ~Cloneable() = default;
+    virtual Cloneable* clone() const = 0; // Глубокое клонирование
+    virtual Cloneable* shallowClone() const = 0; // Поверхностное клонирование
+};
+
+class Order : public Cloneable {
 private:
     int orderId;
     double totalAmount;
     std::string status;
     std::string time;
+    std::string* notes; // Указатель для демонстрации глубокого клонирования
 
 public:
     // Конструкторы
-    Order(int id, const std::string& time);
-    Order(const Order& other); // Конструктор копирования
+    Order(int id, const std::string& time, const std::string& notes = "");
+    Order(const Order& other); // Конструктор копирования (глубокое копирование)
+    
+    // Деструктор
+    ~Order();
     
     // Методы
     void addItem(double price);
@@ -31,6 +43,15 @@ public:
     // Работа со строками
     std::string formatTime() const; // Форматирование времени
     bool containsTime(const std::string& searchTime) const; // Поиск во времени
+    
+    // Методы клонирования
+    virtual Cloneable* clone() const override; // Глубокое клонирование
+    virtual Cloneable* shallowClone() const override; // Поверхностное клонирование
+    Order* cloneOrder() const; // Удобный метод для клонирования Order
+    
+    // Геттер для notes
+    std::string getNotes() const { return notes ? *notes : ""; }
+    void setNotes(const std::string& newNotes);
     
     // Перегрузка операторов
     Order& operator=(const Order& other); // Оператор присваивания

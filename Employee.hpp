@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 class Employee {
-private:
+protected: // Изменено на protected для наследования
     int employeeId;
     std::string name;
     std::string position;
@@ -20,14 +20,15 @@ public:
     Employee(int id, const std::string& name, const std::string& position, double rate);
     Employee(const Employee& other); // Конструктор копирования
     
-    // Деструктор
-    ~Employee();
+    // Виртуальный деструктор (для правильного полиморфизма)
+    virtual ~Employee();
 
-    // Методы
-    double calculateSalary() const;
-    void addHours(double hours);
-    void resetHours();
-    void showInfo() const;
+    // Виртуальные методы
+    virtual double calculateSalary() const;
+    virtual void addHours(double hours);
+    virtual void resetHours();
+    virtual void showInfo() const;
+    virtual std::string getEmployeeType() const { return "Employee"; } // Виртуальная функция с реализацией по умолчанию
     
     // Геттеры с использованием this
     std::string getName() const { return this->name; }

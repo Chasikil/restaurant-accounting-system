@@ -15,7 +15,8 @@ private:
 public:
     // Конструкторы
     Table(int number, int seats);
-    Table(const Table& other); // Конструктор копирования
+    // Запрещаем конструктор копирования по умолчанию (для демонстрации =delete)
+    Table(const Table& other) = delete; // Запрет использования конструктора копирования
 
     // Методы
     void assignOrder(int orderId);

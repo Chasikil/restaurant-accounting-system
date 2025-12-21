@@ -1,76 +1,172 @@
+// Advanced Java Features Demonstration
+// Inheritance, Abstract Classes, Interfaces, Multiple Inheritance, Cloning
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== Лабораторная работа №3: Демонстрация работы классов ===\n");
+        System.out.println("=== Advanced Java Features Demonstration ===\n");
 
-        // Создание и работа с объектом Client
-        System.out.println("--- Работа с классом Client ---");
-        Client client1 = new Client("Иван Петров", "+7-999-123-45-67");
+        // 1. Демонстрация абстрактного класса и наследования
+        System.out.println("1. Abstract class and inheritance:\n");
+        System.out.println("------------------------------------");
+        Client client1 = new Client("John Doe", "+7-999-111-22-33");
+        client1.updateTotalSpent(5000.0);
+        System.out.println("Type: " + client1.getType());
         client1.showInfo();
-        client1.addVisit();
-        client1.updateTotalSpent(3500.0);
-        client1.addVisit();
-        client1.updateTotalSpent(2500.0);
-        System.out.println("После обновления:");
-        client1.showInfo();
+        System.out.println("Value: " + client1.calculateValue());
         System.out.println();
 
-        // Создание и работа с объектом Reservation
-        System.out.println("--- Работа с классом Reservation ---");
-        Reservation reservation1 = new Reservation("RES-001", "Иван Петров", 5, "19:00", 4);
-        reservation1.showInfo();
-        reservation1.changeTime("20:00");
-        reservation1.changeGuestCount(5);
-        System.out.println("Обновленная информация:");
-        reservation1.showInfo();
+        // 2. Демонстрация производных классов (Waiter и Chef)
+        System.out.println("2. Derived classes (Waiter and Chef):\n");
+        System.out.println("--------------------------------------");
+        Waiter waiter1 = new Waiter("Alice", 20.0);
+        waiter1.addHours(40.0);
+        waiter1.serveTable(5);
+        waiter1.addTips(150.0);
+        waiter1.showInfo(); // Переопределение с вызовом базового метода
+        System.out.println("Employee Type: " + waiter1.getEmployeeType());
         System.out.println();
 
-        // Создание и работа с объектом Table
-        System.out.println("--- Работа с классом Table ---");
-        Table table1 = new Table(5, 4);
-        table1.showInfo();
-        table1.occupyTable();
-        System.out.println("Статус занятости: " + table1.isOccupied());
-        table1.freeTable();
-        table1.showInfo();
+        Chef chef1 = new Chef("Bob", 30.0, "Italian");
+        chef1.addHours(40.0);
+        chef1.prepareDish("Pasta");
+        chef1.prepareDish("Pizza");
+        chef1.showInfo(); // Переопределение с вызовом базового метода
+        System.out.println("Employee Type: " + chef1.getEmployeeType());
         System.out.println();
 
-        // Создание и работа с объектом Order
-        System.out.println("--- Работа с классом Order ---");
-        Order order1 = new Order("ORD-001", "19:30", "Анна Смирнова");
-        order1.showInfo();
-        order1.addAmount(1500.0);
-        order1.addAmount(800.0);
-        order1.addAmount(200.0);
-        System.out.println("Итоговая сумма заказа: " + order1.getTotalAmount());
-        order1.showInfo();
+        // 3. Демонстрация protected модификатора
+        System.out.println("3. Protected modifier demonstration:\n");
+        System.out.println("------------------------------------");
+        VIPClient vip1 = new VIPClient("VIP User", "+7-999-999-99-99", "Platinum", 15.0);
+        vip1.updateTotalSpent(10000.0);
+        // VIPClient имеет доступ к protected полям базового класса Client через наследование
+        System.out.println("VIP Client uses protected fields from base class");
+        vip1.showInfo(); // Переопределение метода
         System.out.println();
 
-        // Создание и работа с объектом Employee
-        System.out.println("--- Работа с классом Employee ---");
-        Employee employee1 = new Employee("Анна Смирнова", "Официант", 500.0);
-        employee1.showInfo();
-        employee1.addHours(4.5);
-        employee1.addHours(3.5);
-        double salary = employee1.calculateSalary();
-        employee1.showInfo();
+        // 4. Демонстрация виртуальных методов (в Java все методы виртуальные по умолчанию)
+        System.out.println("4. Virtual methods demonstration (all methods are virtual in Java):\n");
+        System.out.println("------------------------------------");
+        
+        // Вызов через невиртуальную функцию базового класса
+        System.out.println("Calling virtual method via non-virtual function:");
+        RestaurantEntity entity1 = client1;
+        entity1.displayInfo(); // displayInfo вызывает виртуальный showInfo()
         System.out.println();
 
-        // Создание и работа с объектом Shift
-        System.out.println("--- Работа с классом Shift ---");
-        Shift shift1 = new Shift("SHIFT-001", "Анна Смирнова", "10:00", "18:00");
-        shift1.showInfo();
-        int duration = shift1.getShiftDuration();
-        System.out.println("Продолжительность смены: " + duration + " часов");
+        // Вызов через ссылки базового и производного классов (полиморфизм)
+        System.out.println("Calling via base class reference (polymorphism):");
+        RestaurantEntity[] entities = {client1, vip1};
+        for (RestaurantEntity entity : entities) {
+            System.out.println("Entity type: " + entity.getType());
+            entity.showInfo(); // Виртуальный вызов
+            System.out.println();
+        }
+
+        // Демонстрация с Employee и его производными
+        System.out.println("Employee polymorphism:");
+        Employee[] employees = {waiter1, chef1};
+        for (Employee emp : employees) {
+            System.out.println("Employee type: " + emp.getEmployeeType());
+            emp.showInfo(); // Виртуальный вызов
+            System.out.println();
+        }
+
+        // 5. Демонстрация клонирования (поверхностное и глубокое)
+        System.out.println("5. Cloning demonstration (shallow and deep):\n");
+        System.out.println("--------------------------------------------");
+        Order original = new Order("ORD-001", "2024-01-15 12:00:00", "Alice", "Original order notes");
+        original.addAmount(100.0);
+        original.addAmount(50.0);
+        System.out.println("Original order:");
+        original.showInfo();
+        System.out.println("Original notes: " + original.getNotes());
         System.out.println();
 
-        // Создание и работа с объектом Report
-        System.out.println("--- Работа с классом Report ---");
-        Report report1 = new Report("Отчет за день", "2024-01-15", 12500.0);
-        report1.showInfo();
-        report1.generateReport();
+        // Глубокое клонирование
+        Order deepCopy = (Order) original.clone();
+        deepCopy.setNotes("Deep copy notes");
+        System.out.println("Deep copy (after modifying notes):");
+        deepCopy.showInfo();
+        System.out.println("Original notes (unchanged): " + original.getNotes());
+        System.out.println("Deep copy notes: " + deepCopy.getNotes());
         System.out.println();
 
-        System.out.println("=== Демонстрация завершена ===");
+        // Поверхностное клонирование
+        Order shallowCopy = (Order) original.shallowClone();
+        System.out.println("Shallow copy:");
+        shallowCopy.showInfo();
+        System.out.println();
+
+        // 6. Демонстрация вызова конструктора базового класса из производного
+        System.out.println("6. Base class constructor call from derived class:\n");
+        System.out.println("---------------------------------------------------");
+        Waiter waiter2 = new Waiter("Charlie", 22.0); // Конструктор Waiter вызывает конструктор Employee
+        Chef chef2 = new Chef("David", 35.0, "French"); // Конструктор Chef вызывает конструктор Employee
+        VIPClient vip2 = new VIPClient("Another VIP", "+7-999-888-77-66", "Diamond", 20.0); // Конструктор VIPClient вызывает конструктор Client
+        System.out.println("All constructors called base class constructors via super()");
+        System.out.println();
+
+        // 7. Демонстрация интерфейсов
+        System.out.println("7. Interfaces demonstration:\n");
+        System.out.println("--------------------------------------------");
+        System.out.println("Client implements Payable and Displayable:");
+        System.out.println("Payment info: " + client1.getPaymentInfo());
+        System.out.println("Display string: " + client1.getDisplayString());
+        client1.processPayment();
+        System.out.println();
+
+        System.out.println("Waiter implements Payable and Displayable:");
+        System.out.println("Payment info: " + waiter1.getPaymentInfo());
+        System.out.println("Display string: " + waiter1.getDisplayString());
+        waiter1.processPayment();
+        System.out.println();
+
+        System.out.println("Order implements Cloneable, Payable and Displayable:");
+        System.out.println("Payment info: " + original.getPaymentInfo());
+        System.out.println("Display string: " + original.getDisplayString());
+        original.processPayment();
+        System.out.println();
+
+        // 8. Демонстрация множественного наследования (класс + интерфейсы)
+        System.out.println("8. Multiple inheritance demonstration (class + interfaces):\n");
+        System.out.println("-------------------------------------------------------------");
+        System.out.println("Waiter extends Employee (abstract class) and implements Payable, Displayable:");
+        System.out.println("  - Inherits from Employee");
+        System.out.println("  - Implements Payable interface");
+        System.out.println("  - Implements Displayable interface");
+        System.out.println("Employee type: " + waiter1.getEmployeeType());
+        System.out.println("Amount: " + waiter1.getAmount());
+        waiter1.display();
+        System.out.println();
+
+        System.out.println("VIPClient extends Client (which extends RestaurantEntity) and implements Payable, Displayable:");
+        System.out.println("  - Inherits from Client -> RestaurantEntity");
+        System.out.println("  - Implements Payable interface");
+        System.out.println("  - Implements Displayable interface");
+        System.out.println("Type: " + vip1.getType());
+        System.out.println("Amount: " + vip1.getAmount());
+        vip1.display();
+        System.out.println();
+
+        // 9. Демонстрация работы с массивами полиморфных объектов
+        System.out.println("9. Working with polymorphic arrays:\n");
+        System.out.println("------------------------------------");
+        Payable[] payables = {client1, waiter1, chef1, original};
+        System.out.println("Processing payments for all payable objects:");
+        for (Payable payable : payables) {
+            System.out.println("  " + payable.getPaymentInfo());
+            payable.processPayment();
+        }
+        System.out.println();
+
+        Displayable[] displayables = {client1, waiter1, chef1, original, vip1};
+        System.out.println("Displaying all displayable objects:");
+        for (Displayable displayable : displayables) {
+            System.out.println("  " + displayable.getDisplayString());
+        }
+        System.out.println();
+
+        System.out.println("=== Demonstration completed ===");
     }
 }
-

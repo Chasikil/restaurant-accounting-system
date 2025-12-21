@@ -18,12 +18,7 @@ Table::Table(int number, int seats)
     }
 }
 
-// Конструктор копирования
-Table::Table(const Table& other)
-    : tableNumber(other.tableNumber), seats(other.seats), 
-      status(other.status), currentOrder(other.currentOrder)
-{
-}
+// Конструктор копирования удален (=delete) для демонстрации запрета копирования
 
 void Table::assignOrder(int orderId) {
     try {

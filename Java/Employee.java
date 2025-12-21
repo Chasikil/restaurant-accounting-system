@@ -1,34 +1,81 @@
-public class Employee {
-    private String name;
-    private String position;
-    private double hoursWorked;
-    private double hourlyRate;
+// Абстрактный класс Employee с protected полями для наследования
+public abstract class Employee implements Payable, Displayable {
+    protected String name;
+    protected String position;
+    protected double hoursWorked;
+    protected double hourlyRate;
+    protected static int totalEmployees = 0;
+    protected static double totalHoursWorked = 0.0;
 
     public Employee(String name, String position, double hourlyRate) {
         this.name = name;
         this.position = position;
         this.hoursWorked = 0.0;
         this.hourlyRate = hourlyRate;
+        totalEmployees++;
     }
 
+    // Виртуальный метод (может быть переопределен в производных классах)
     public double calculateSalary() {
-        double salary = hoursWorked * hourlyRate;
-        System.out.println("Calculated salary for " + name + ": " + salary);
-        return salary;
+        return hoursWorked * hourlyRate;
     }
+
+    // Абстрактный метод (должен быть реализован в производных классах)
+    public abstract String getEmployeeType();
 
     public void addHours(double hours) {
         this.hoursWorked += hours;
         System.out.println("Added " + hours + " hours. Total hours worked: " + hoursWorked);
     }
 
+    // Виртуальный метод (может быть переопределен в производных классах)
     public void showInfo() {
         System.out.println("Employee Info:");
         System.out.println("  Name: " + name);
         System.out.println("  Position: " + position);
         System.out.println("  Hours Worked: " + hoursWorked);
         System.out.println("  Hourly Rate: " + hourlyRate);
-        System.out.println("  Salary: " + (hoursWorked * hourlyRate));
+        System.out.println("  Salary: " + calculateSalary());
+    }
+
+    // Реализация интерфейса Payable
+    @Override
+    public double getAmount() {
+        return calculateSalary();
+    }
+
+    @Override
+    public void processPayment() {
+        System.out.println("Processing salary payment for employee: " + name);
+    }
+
+    @Override
+    public String getPaymentInfo() {
+        return "Employee " + name + " salary: " + calculateSalary();
+    }
+
+    // Реализация интерфейса Displayable
+    @Override
+    public void display() {
+        showInfo();
+    }
+
+    @Override
+    public String getDisplayString() {
+        return "Employee: " + name + " - " + position;
+    }
+
+    // Статические методы
+    public static int getTotalEmployees() {
+        return totalEmployees;
+    }
+
+    public static double getTotalHoursWorked() {
+        return totalHoursWorked;
+    }
+
+    public static double getAverageHours() {
+        return totalEmployees > 0 ? totalHoursWorked / totalEmployees : 0.0;
     }
 
     public String getName() {

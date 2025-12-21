@@ -30,16 +30,12 @@ void VIPClient::setVipLevel(const std::string& level) {
     this->vipLevel = level;
 }
 
-// Переопределенный метод базового класса
+// Переопределение метода базового класса с вызовом базового метода
 void VIPClient::showInfo() const {
-    std::cout << "VIP Client Info:" << std::endl;
-    std::cout << "  Name: " << this->name << std::endl;
-    std::cout << "  Phone: " << this->phone << std::endl;
-    std::cout << "  Visits: " << this->visitsCount << std::endl;
-    std::cout << "  Total Spent: " << this->totalSpent << std::endl;
-    std::cout << "  Status: " << this->status << std::endl;
+    Client::showInfo(); // Вызов метода базового класса Client
     std::cout << "  VIP Level: " << this->vipLevel << std::endl;
     std::cout << "  Discount: " << this->discount << "%" << std::endl;
+    std::cout << "  Discounted Total: " << this->calculateValue() << std::endl;
 }
 
 // Оператор присваивания
@@ -52,4 +48,17 @@ VIPClient& VIPClient::operator=(const VIPClient& other) {
     }
     return *this;
 }
+
+VIPClient& VIPClient::operator=(const Client& other) {
+    Client::operator=(other); // Присваивание только базовой части
+    // Поля, специфичные для VIPClient, остаются неизменными
+    return *this;
+}
+
+VIPClient& VIPClient::operator=(const RestaurantEntity& other) {
+    RestaurantEntity::operator=(other); // Присваивание только базовой части
+    // Поля, специфичные для VIPClient, остаются неизменными
+    return *this;
+}
+
 

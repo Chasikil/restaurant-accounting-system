@@ -4,23 +4,41 @@
 #include <algorithm>
 
 // Конструктор
-Order::Order(int id, const std::string& time)
+Order::Order(int id, const std::string& time, const std::string& notes)
     : orderId(id), totalAmount(0.0), status("Pending"), time(time)
 {
     try {
         if (id <= 0) {
             throw std::invalid_argument("Order ID must be positive");
         }
+        if (notes.empty()) {
+            this->notes = nullptr;
+        } else {
+            this->notes = new std::string(notes); // Динамическое выделение памяти
+        }
     } catch (const std::exception& e) {
         std::cerr << "Error in Order constructor: " << e.what() << std::endl;
+        this->notes = nullptr;
     }
 }
 
-// Конструктор копирования
+// Конструктор копирования (глубокое копирование)
 Order::Order(const Order& other)
     : orderId(other.orderId), totalAmount(other.totalAmount), 
       status(other.status), time(other.time)
 {
+    // Глубокое копирование указателя
+    if (other.notes != nullptr) {
+        this->notes = new std::string(*(other.notes));
+    } else {
+        this->notes = nullptr;
+    }
+}
+
+// Деструктор
+Order::~Order() {
+    delete notes; // Освобождение памяти
+    notes = nullptr;
 }
 
 void Order::addItem(double price) {
@@ -64,6 +82,9 @@ void Order::showInfo() const {
     std::cout << "  Total Amount: " << this->totalAmount << std::endl;
     std::cout << "  Status: " << this->status << std::endl;
     std::cout << "  Time: " << this->time << std::endl;
+    if (this->notes != nullptr) {
+        std::cout << "  Notes: " << *(this->notes) << std::endl;
+    }
 }
 
 // Работа со строками: форматирование
@@ -77,13 +98,23 @@ bool Order::containsTime(const std::string& searchTime) const {
     return this->time.find(searchTime) != std::string::npos;
 }
 
-// Оператор присваивания
+// Оператор присваивания (глубокое копирование)
 Order& Order::operator=(const Order& other) {
     if (this != &other) {
         this->orderId = other.orderId;
         this->totalAmount = other.totalAmount;
         this->status = other.status;
         this->time = other.time;
+        
+        // Глубокое копирование указателя
+        if (this->notes != nullptr) {
+            delete this->notes;
+        }
+        if (other.notes != nullptr) {
+            this->notes = new std::string(*(other.notes));
+        } else {
+            this->notes = nullptr;
+        }
     }
     return *this;
 }
@@ -116,10 +147,45 @@ std::istream& operator>>(std::istream& is, Order& order) {
     return is;
 }
 
+// Методы клонирования
+Cloneable* Order::clone() const {
+    // Глубокое клонирование - создаем новый объект с копированием всех данных
+    Order* newOrder = new Order(*this);
+    return newOrder;
+}
+
+Cloneable* Order::shallowClone() const {
+    // Поверхностное клонирование - создаем новый объект, но указатель notes указывает на те же данные
+    Order* newOrder = new Order(this->orderId, this->time);
+    newOrder->totalAmount = this->totalAmount;
+    newOrder->status = this->status;
+    newOrder->notes = this->notes; // Указатель копируется, не данные!
+    return newOrder;
+}
+
+Order* Order::cloneOrder() const {
+    return dynamic_cast<Order*>(clone());
+}
+
+void Order::setNotes(const std::string& newNotes) {
+    if (notes != nullptr) {
+        delete notes;
+    }
+    if (newNotes.empty()) {
+        notes = nullptr;
+    } else {
+        notes = new std::string(newNotes);
+    }
+}
+
 // Дружественная функция для вывода
 std::ostream& operator<<(std::ostream& os, const Order& order) {
     os << "Order[ID: " << order.orderId << ", Amount: " << order.totalAmount 
-       << ", Status: " << order.status << ", Time: " << order.time << "]";
+       << ", Status: " << order.status << ", Time: " << order.time;
+    if (order.notes != nullptr) {
+        os << ", Notes: " << *(order.notes);
+    }
+    os << "]";
     return os;
 }
 

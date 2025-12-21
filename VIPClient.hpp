@@ -23,12 +23,17 @@ public:
     double getDiscount() const { return this->discount; }
     std::string getVipLevel() const { return this->vipLevel; }
     
-    // Переопределенный метод базового класса
-    void showInfo() const;
+    // Переопределение виртуальных методов базового класса
+    virtual void showInfo() const override; // Переопределение с вызовом базового метода
+    virtual std::string getType() const override { return "VIPClient"; }
+    virtual double calculateValue() const override { return this->totalSpent * (1.0 - discount / 100.0); }
     
     // Перегрузка операторов
     VIPClient& operator=(const VIPClient& other);
+    VIPClient& operator=(const Client& other); // Присваивание объектов базового класса
+    VIPClient& operator=(const RestaurantEntity& other); // Присваивание объектов базового класса
 };
 
 #endif // VIPCLIENT_HPP
+
 

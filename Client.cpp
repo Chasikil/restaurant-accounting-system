@@ -7,16 +7,19 @@
 int Client::totalClients = 0;
 
 Client::Client(const std::string& name, const std::string& phone)
-    : name(name), phone(phone), visitsCount(0), totalSpent(0.0), status("Bronze")
+    : RestaurantEntity(totalClients + 1, name), phone(phone), visitsCount(0), totalSpent(0.0), status("Bronze")
 {
+    // Вызов конструктора базового класса RestaurantEntity в списке инициализации
     totalClients++; // Увеличиваем счетчик клиентов
+    this->entityId = totalClients; // Обновляем ID после увеличения счетчика
 }
 
 // Конструктор копирования
 Client::Client(const Client& other)
-    : name(other.name), phone(other.phone), visitsCount(other.visitsCount),
+    : RestaurantEntity(other.entityId, other.name), phone(other.phone), visitsCount(other.visitsCount),
       totalSpent(other.totalSpent), status(other.status)
 {
+    // Вызов конструктора базового класса RestaurantEntity
     totalClients++; // Увеличиваем счетчик при копировании
 }
 
@@ -54,6 +57,7 @@ void Client::determineStatus() {
 
 void Client::showInfo() const {
     std::cout << "Client Info:" << std::endl;
+    std::cout << "  ID: " << this->entityId << std::endl;
     std::cout << "  Name: " << this->name << std::endl;
     std::cout << "  Phone: " << this->phone << std::endl;
     std::cout << "  Visits: " << this->visitsCount << std::endl;
@@ -84,12 +88,19 @@ bool Client::findInName(const std::string& searchTerm) const {
 // Оператор присваивания
 Client& Client::operator=(const Client& other) {
     if (this != &other) { // Проверка на самоприсваивание
-        this->name = other.name;
+        RestaurantEntity::operator=(other); // Вызов оператора базового класса
         this->phone = other.phone;
         this->visitsCount = other.visitsCount;
         this->totalSpent = other.totalSpent;
         this->status = other.status;
     }
+    return *this;
+}
+
+// Оператор присваивания для присваивания объектов базового класса
+Client& Client::operator=(const RestaurantEntity& other) {
+    RestaurantEntity::operator=(other); // Вызов оператора базового класса
+    // Оставляем поля Client неизменными, так как в базовом классе их нет
     return *this;
 }
 
@@ -117,7 +128,7 @@ Client Client::operator+(double amount) const {
 
 // Дружественная функция для вывода
 std::ostream& operator<<(std::ostream& os, const Client& client) {
-    os << "Client[" << client.name << ", " << client.phone 
+    os << "Client[" << client.getName() << ", " << client.phone 
        << ", Status: " << client.status << ", Spent: " << client.totalSpent << "]";
     return os;
 }

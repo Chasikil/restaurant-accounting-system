@@ -26,6 +26,16 @@ public class Main {
         System.out.println("Employee Type: " + waiter1.getEmployeeType());
         System.out.println();
 
+        // Динамическая конфигурация стратегии (через системное свойство или env)
+        System.setProperty("waiter.mode", "event");
+        Waiter waiterEvent = new Waiter("Eve", 22.0);
+        waiterEvent.addHours(30.0);
+        waiterEvent.serveTable(8);
+        waiterEvent.addTips(300.0);
+        System.out.println("Configured waiter with dynamic strategy:");
+        waiterEvent.showInfo();
+        System.out.println();
+
         Chef chef1 = new Chef("Bob", 30.0, "Italian");
         chef1.addHours(40.0);
         chef1.prepareDish("Pasta");

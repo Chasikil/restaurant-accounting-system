@@ -7,6 +7,7 @@
 #include "Client.hpp"
 #include "Order.hpp"
 #include "Employee.hpp"
+#include "Waiter.hpp"
 #include "VIPClient.hpp"
 
 int main() {
@@ -170,6 +171,24 @@ int main() {
     Order* orderPtr = &order7;
     orderPtr->addItem(150.0);
     std::cout << "Using pointer: " << *orderPtr << std::endl;
+    std::cout << std::endl;
+
+    // 12. Делегирование поведения официанта (стратегия расчёта бонусов)
+    std::cout << "12. Waiter serving policy (dynamic configuration):\n";
+    std::cout << "--------------------------------------------------\n";
+    // Значение можно задать переменной среды WAITER_POLICY=event
+    Waiter defaultWaiter(10, "Policy Default", 20.0, 5);
+    defaultWaiter.addHours(40);
+    defaultWaiter.addTips(200.0);
+    defaultWaiter.showInfo();
+    std::cout << std::endl;
+
+    // Статическая конфигурация через явную стратегию
+    auto eventPolicy = std::make_shared<EventServingPolicy>();
+    Waiter eventWaiter(11, "Policy Event", 20.0, eventPolicy, 5);
+    eventWaiter.addHours(40);
+    eventWaiter.addTips(200.0);
+    eventWaiter.showInfo();
     std::cout << std::endl;
 
     std::cout << "=== Demonstration completed ===\n";

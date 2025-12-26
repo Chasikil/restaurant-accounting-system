@@ -1,9 +1,29 @@
 // Advanced Java Features Demonstration
 // Inheritance, Abstract Classes, Interfaces, Multiple Inheritance, Cloning
-
+import java.util.ArrayList;
+import java.util.List;
 public class Main {
+    
+    
     public static void main(String[] args) {
+        
+        List<Report> reports = new ArrayList<>();
+
+        reports.add(new SalesReport());
+        reports.add(new EmployeeReport());
+
+        System.out.println("=== Reports ===");
+        for (Report r : reports) {
+            r.generate();
+        }
         System.out.println("=== Advanced Java Features Demonstration ===\n");
+        List<Report> reports = new ArrayList<>();
+        reports.add(new SalesReport());
+        reports.add(new EmployeeReport());
+
+        for (Report r : reports) {
+    r.generate(); // полиморфизм
+}
 
         // 1. Демонстрация абстрактного класса и наследования
         System.out.println("1. Abstract class and inheritance:\n");

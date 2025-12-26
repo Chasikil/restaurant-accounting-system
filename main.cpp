@@ -2,6 +2,12 @@
 // Extended with smart pointers, operators, inheritance, exceptions, etc.
 
 #include <iostream>
+#include <algorithm>
+#include <list>
+#include <map>
+#include <array>
+#include <span>
+#include <variant>
 #include <memory>
 #include <vector>
 #include "Client.hpp"
@@ -9,10 +15,157 @@
 #include "Employee.hpp"
 #include "Waiter.hpp"
 #include "VIPClient.hpp"
+#include "utils.hpp"
+#include "ReportStorage.hpp"
+#include "SalesReport.hpp"
+#include "ReportRepository.hpp"
 
 int main() {
     std::cout << "=== Demonstration of advanced C++ features ===\n\n";
+    void demoCopyTransform() {
+        std::vector<int> src = {1, 2, 3};
+        std::vector<int> dst(3);
+    
+        std::copy(src.begin(), src.end(), dst.begin());
+    
+        std::transform(dst.begin(), dst.end(), dst.begin(),
+                       [](int x) { return x * 2; });
+    
+        for (int x : dst)
+            std::cout << x << " ";
+        std::cout << "\n";
+    }
+    void demoTemplateClass() {
+        ReportStorage<SalesReport> storage;
+        storage.add(std::make_shared<SalesReport>());
+        std::cout << "Reports count: " << storage.count() << "\n";
+    }
+    void demoTemplateFunction() {
+        int prices[] = {100, 200, 300};
+        std::cout << "Sum: " << sumValues(prices, 3) << "\n";
+    }    
+    void demoVectorEmployees() {
+        std::vector<std::shared_ptr<Employee>> staff;
+    
+        staff.push_back(std::make_shared<Employee>("Ivan", 30000));
+        staff.push_back(std::make_shared<Waiter>("Anna", 25000, 10));
+        staff.push_back(std::make_shared<Waiter>("Oleg", 27000, 15));
+    
+        std::cout << "=== Employees list ===\n";
+        for (const auto& e : staff) {
+            e->showInfo(); // виртуальный вызов
+        }
+    }
+    void demoSortEmployees() {
+        std::vector<std::shared_ptr<Employee>> staff;
+    
+        staff.push_back(std::make_shared<Employee>("Ivan", 30000));
+        staff.push_back(std::make_shared<Employee>("Petr", 28000));
+        staff.push_back(std::make_shared<Employee>("Alex", 35000));
+    
+        std::sort(staff.begin(), staff.end(),
+            [](const auto& a, const auto& b) {
+                return a->getSalary() < b->getSalary();
+            });
+    
+        auto minEmp = std::min_element(staff.begin(), staff.end(),
+            [](const auto& a, const auto& b) {
+                return a->getSalary() < b->getSalary();
+            });
+    
+        auto maxEmp = std::max_element(staff.begin(), staff.end(),
+            [](const auto& a, const auto& b) {
+                return a->getSalary() < b->getSalary();
+            });
+    
+        std::cout << "Min salary:\n";
+        (*minEmp)->showInfo();
+    
+        std::cout << "Max salary:\n";
+        (*maxEmp)->showInfo();
+    }
+    void demoFind() {
+        std::vector<std::shared_ptr<Employee>> staff;
+    
+        staff.push_back(std::make_shared<Employee>("Ivan", 30000));
+        staff.push_back(std::make_shared<Employee>("Alex", 50000));
+    
+        auto it = std::find_if(staff.begin(), staff.end(),
+            [](const auto& e) {
+                return e->getSalary() > 40000;
+            });
+    
+        if (it != staff.end()) {
+            std::cout << "Found high salary employee:\n";
+            (*it)->showInfo();
+        }
+    
+        bool hasLowSalary = std::any_of(staff.begin(), staff.end(),
+            [](const auto& e) {
+                return e->getSalary() < 20000;
+            });
+    
+        std::cout << "Has low salary employee: " << hasLowSalary << "\n";
+    }
+    void demoList() {
+        std::list<int> orders = {100, 200, 50, 400};
+    
+        orders.remove_if([](int price) {
+            return price < 100;
+        });
+    
+        std::cout << "Orders after remove:\n";
+        for (int p : orders) {
+            std::cout << p << " ";
+        }
+        std::cout << "\n";
+    }
+    void demoMap() {
+        std::map<int, std::string> tables;
+    
+        tables[1] = "Free";
+        tables[2] = "Occupied";
+        tables[3] = "Reserved";
+    
+        for (const auto& [id, status] : tables) {
+            std::cout << "Table " << id << ": " << status << "\n";
+        }
+    }
+    void printPrices(std::span<int> prices) {
+        for (int p : prices) {
+            std::cout << p << " ";
+        }
+        std::cout << "\n";
+    }
+    
+    void demoArraySpan() {
+        std::array<int, 4> prices = {100, 200, 300, 400};
+        printPrices(prices);
+    }
+    void demoVariant() {
+        std::variant<int, std::string> data;
+    
+        data = 10;
+        std::cout << std::get<int>(data) << "\n";
+    
+        data = "Order paid";
+        std::cout << std::get<std::string>(data) << "\n";
+    }
+    demoVectorEmployees();
+    demoSortEmployees();
+    demoFind();
+    demoList();
+    demoMap();
+    demoArraySpan();
+    demoVariant();
+    ReportRepository<SalesReport> salesRepo;
 
+    salesRepo.add(std::make_shared<SalesReport>());
+    salesRepo.add(std::make_shared<SalesReport>());
+
+    std::cout << "Sales reports count: " << salesRepo.size() << std::endl;
+    salesRepo.printAll();
+    }
     // 1. Статическое создание объекта класса
     std::cout << "1. Static object creation:\n";
     std::cout << "----------------------------\n";
@@ -190,7 +343,6 @@ int main() {
     eventWaiter.addTips(200.0);
     eventWaiter.showInfo();
     std::cout << std::endl;
-
     std::cout << "=== Demonstration completed ===\n";
     return 0;
 }
